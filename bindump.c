@@ -17,8 +17,9 @@
 
 int usage(void)
 {
-    char *msg = "Usage: bindump [-l] [-n one_read_bytes] [filename]\n"
+    char *msg = "Usage: bindump [-l] [-C] [-n one_read_bytes] [filename]\n"
                 "       -l: print data length at the end of lines\n"
+//              "       -C: print printable characters\n"
                 "       -n: specify one read byte size (4 bytes default)\n";
     fprintf(stderr, "%s", msg);
 
@@ -33,6 +34,7 @@ int main(int argc, char *argv[])
     unsigned char *buf;
     int line_num = 0;
     int print_so_far_data_len = 0;
+//  int print_printable_chars = 0;
     int so_far_data_len = 0;
     int c;
 
@@ -84,7 +86,7 @@ int main(int argc, char *argv[])
         line_num ++;
         for (int i = 0; i < n; i++) {
             printf("%02x", buf[i]);
-            if (i != (n_read_bytes - 1)) {
+            if (i != (n - 1)) {
                 printf(" ");
             }
         }
