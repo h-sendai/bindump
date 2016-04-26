@@ -12,19 +12,25 @@
 #include <unistd.h>
 #include <getopt.h>
 
-//extern char *optarg;
-//extern int optind, opterr, optopt;
-
 int usage(void)
 {
     char *msg = "Usage: bindump [-l] [-C] [-n one_read_bytes] [filename]\n"
                 "       -l: print data length at the end of lines\n"
-//              "       -C: print printable characters\n"
+                "       -C: print printable characters\n"
                 "       -n: specify one read byte size (4 bytes default)\n";
     fprintf(stderr, "%s", msg);
 
     return 0;
 } 
+
+int is_printable(unsigned char s)
+{
+    if (s >= ' ' && s <= '~') {
+        return 1;
+    }
+
+    return 0;
+}
 
 int main(int argc, char *argv[])
 {
@@ -34,17 +40,20 @@ int main(int argc, char *argv[])
     unsigned char *buf;
     int line_num = 0;
     int print_so_far_data_len = 0;
-//  int print_printable_chars = 0;
+    int print_printable_chars = 0;
     int so_far_data_len = 0;
     int c;
 
-    while ( (c = getopt(argc, argv, "ln:")) != -1) {
+    while ( (c = getopt(argc, argv, "Cln:")) != -1) {
         switch (c) {
             case 'l':
                 print_so_far_data_len = 1;
                 break;
             case 'n':
                 n_read_bytes = strtol(optarg, NULL, 0);
+                break;
+            case 'C':
+                print_printable_chars = 1;
                 break;
             default:
                 break;
@@ -90,8 +99,22 @@ int main(int argc, char *argv[])
                 printf(" ");
             }
         }
+
+        if (print_printable_chars) {
+            printf(" |");
+            for (int i = 0; i < n; i++) {
+                if (is_printable(buf[i])) {
+                    printf("%c", buf[i]);
+                }
+                else {
+                    printf(".");
+                }
+            }
+            printf("|");
+        }
+
         if (print_so_far_data_len) {
-            printf(" %d", so_far_data_len);
+            printf(" (%d)", so_far_data_len);
         }
         printf("\n");
     }
